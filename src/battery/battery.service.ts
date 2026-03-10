@@ -14,6 +14,7 @@ export class BatteryService {
     const newBattery: Battery = {
       id: this.batteryList.length + 1,
       ...createBatteryDto,
+      temperature: 0,
     };
 
     this.batteryList.push(newBattery);
@@ -52,5 +53,31 @@ export class BatteryService {
       return removed[0];
     }
     return null;
+  }
+
+  findByVoltage(minVoltage: number) {
+    return this.batteryList.filter((b) => b.voltage >= Number(minVoltage));
+  }
+
+  findSensorInBattery(batteryId: number, sensorId: number) {
+    return {
+      parentBattery: Number(batteryId),
+      sensorDetail: `Дані для сенсора ${sensorId}`,
+      value: (Math.random() * 5).toFixed(2),
+      status: 'Active',
+    };
+  }
+  calculateHealth(id: number) {
+    const battery = this.batteryList.find((b) => b.id === Number(id));
+    if (!battery) return { error: 'Battery not found' };
+
+    const healthPercentage = (battery.voltage / 4.2) * 100; //not real formula
+
+    return {
+      id: battery.id,
+      health: `${healthPercentage.toFixed(1)}%`,
+      status: healthPercentage > 80 ? 'Good' : 'Needs Maintenance',
+      timestamp: new Date().toISOString(),
+    };
   }
 }
