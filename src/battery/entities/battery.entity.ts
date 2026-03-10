@@ -3,4 +3,5 @@ export class Battery {
   public percentage: number;
   public voltage: number;
   public isCharging: boolean;
+  public temperature: number;
 }

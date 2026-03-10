@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { BatteryService } from './battery.service';
 import { CreateBatteryDto } from './dto/create-battery.dto';
@@ -43,5 +44,44 @@ export class BatteryController {
   remove(@Param('id') id: string) {
     console.log(`DELETE request: /battery/${id}`);
     return this.batteryService.remove(+id);
+  }
+  @Get('search/filter')
+  filterByVoltage(@Query('min') min: number) {
+    return this.batteryService.findByVoltage(min);
+  }
+  @Get(':id/health-check')
+  async getHealth(@Param('id') id: string) {
+    const battery = await this.batteryService.findOne(+id);
+
+    if (!battery) {
+      return { error: 'Battery not found' };
+    }
+
+    const isOverheating = battery.temperature > 45;
+    const chargeLevel = ((battery.voltage - 3.2) / (4.2 - 3.2)) * 100;
+
+    let status = 'Excellent';
+    if (chargeLevel < 20) status = 'Low Battery';
+    if (isOverheating) status = 'CRITICAL: OVERHEAT';
+
+    return {
+      batteryId: id,
+      percentage: `${chargeLevel.toFixed(1)}%`,
+      healthStatus: status,
+      canOperate: !isOverheating && chargeLevel > 5,
+      timestamp: new Date(),
+    };
+  }
+  @Get(':id/sensors/:sensorId')
+  async getDeepData(
+    @Param('id') cartId: string,
+    @Param('sensorId') speakerId: string,
+  ) {
+    return {
+      message: 'Глибоко вкладений ресурс',
+      providedCartId: cartId,
+      providedSpeakerId: speakerId,
+      timestamp: new Date().toISOString(),
+    };
   }
 }
