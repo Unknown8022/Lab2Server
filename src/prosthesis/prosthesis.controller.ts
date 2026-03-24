@@ -1,7 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('prosthesis')
 export class ProsthesisController {
+  @UseGuards(JwtAuthGuard)
   @Get(':id/sensors/:sensorId')
   getSensorData(@Param('id') id: string, @Param('sensorId') sensorId: string) {
     return {
@@ -10,9 +12,9 @@ export class ProsthesisController {
       sensor: sensorId,
       data: {
         value: (Math.random() * 5).toFixed(2) + ' mV',
-        battery: '92%'
+        battery: '94%',
       },
-      message: 'Телеметрія отримана успішно'
+      message: 'Дані отримано через JWT-захист',
     };
   }
 }
