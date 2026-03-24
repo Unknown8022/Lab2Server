@@ -1,13 +1,22 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { EngineModule } from './engine/engine.module';
-import { SensorModule } from './sensor/sensor.module';
-import { BatteryModule } from './battery/battery.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { ProsthesisModule } from './prosthesis/prosthesis.module';
+import { User } from './users/entities/user.entity';
+import { Prosthesis } from './prosthesis/entities/prosthesis.entity';
 
 @Module({
-  imports: [EngineModule, SensorModule, BatteryModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: 'postgresql://neondb_owner:npg_o1n6kFxDymrB@ep-misty-cherry-a9uqk2tp-pooler.gwc.azure.neon.tech/neondb?sslmode=require',
+      entities: [User, Prosthesis],
+      synchronize: true,
+      ssl: true,
+      extra: { ssl: { rejectUnauthorized: false } },
+    }),
+    UsersModule,
+    ProsthesisModule,
+  ],
 })
 export class AppModule {}

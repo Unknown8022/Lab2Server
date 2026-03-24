@@ -72,16 +72,22 @@ export class BatteryController {
       timestamp: new Date(),
     };
   }
-  @Get(':id/sensors/:sensorId')
-  async getDeepData(
-    @Param('id') cartId: string,
-    @Param('sensorId') speakerId: string,
-  ) {
-    return {
-      message: 'Глибоко вкладений ресурс',
-      providedCartId: cartId,
-      providedSpeakerId: speakerId,
-      timestamp: new Date().toISOString(),
-    };
-  }
+  @Get(':prosthesisId/sensors/:sensorId')
+async getProsthesisSensorData(
+  @Param('prosthesisId') prosthesisId: string,
+  @Param('sensorId') sensorId: string,
+) {
+  return {
+    status: 'success',
+    prosthesisId: prosthesisId,
+    sensor: {
+      id: sensorId,
+      type: 'EMG_Sensor', 
+      reading: '0.45mV',
+      calibrationDate: new Date().toISOString(),
+    },
+    battery: '85%',
+    timestamp: new Date().getTime(),
+  };
+}
 }
