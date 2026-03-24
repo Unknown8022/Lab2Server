@@ -1,6 +1,21 @@
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Prosthesis } from '../../prosthesis/entities/prosthesis.entity';
+
+@Entity() // Це каже TypeORM, що цей клас - таблиця в базі
 export class Sensor {
-  public id: number;
-  public type: string;
-  public value: number;
-  public isActive: boolean;
+  @PrimaryGeneratedColumn() // Автоматичний ID (1, 2, 3...)
+  id: number;
+
+  @Column()
+  type: string;
+
+  @Column('float', { default: 0 })
+  value: number;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  // Зв'язок Many-to-Many з протезами
+  @ManyToMany(() => Prosthesis, (prosthesis) => prosthesis.sensors)
+  prostheses: Prosthesis[];
 }

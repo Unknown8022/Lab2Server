@@ -12,7 +12,7 @@ import { BatteryModule } from './battery/battery.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: 'ВАШ_URL_ВІД_NEON', // Замініть на свій рядок підключення
+      url: 'postgresql://neondb_owner:npg_o1n6kFxDymrB@ep-misty-cherry-a9uqk2tp-pooler.gwc.azure.neon.tech/neondb?sslmode=require&channel_binding=require', // Замініть на свій рядок підключення
       // Автоматичне завантаження всіх сутностей (entity)
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       // Налаштування для Завдання 2: Міграції
