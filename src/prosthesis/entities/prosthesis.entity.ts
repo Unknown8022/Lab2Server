@@ -28,8 +28,8 @@ export class Prosthesis {
   owner: User;
 
   // Many-to-Many: Протез може мати багато датчиків, а датчик може бути на різних протезах
-  @ManyToMany(() => Sensor)
-  @JoinTable() // Створює проміжну таблицю prosthesis_sensors_sensor
+  @ManyToMany(() => Sensor, (sensor) => sensor.prostheses)
+  @JoinTable()
   sensors: Sensor[];
 
   // One-to-One: Один протез має один конкретний двигун

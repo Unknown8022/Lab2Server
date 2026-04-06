@@ -15,11 +15,11 @@ export class SensorService {
     const newSensor: Sensor = {
       id: this.sensors.length + 1,
       ...createSensorDto,
+      prostheses: [],
     };
 
     this.sensors.push(newSensor);
 
-    // Виводимо об'єкт у консоль для перевірки
     this.logger.debug(`Датчик створено успішно: ${JSON.stringify(newSensor)}`);
     return newSensor;
   }
