@@ -7,4 +7,6 @@ export class CreateEngineDto {
   public rotationPerSecondSpeed: number;
   public voltage: number;
   public electricCurrent: number;
+  power: number;
+  type: string;
 }

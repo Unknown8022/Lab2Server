@@ -1,102 +1,83 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Engine } from './entities/engine.entity';
 import { CreateEngineDto } from './dto/create-engine.dto';
 import { UpdateEngineDto } from './dto/update-engine.dto';
-import { Engine } from './entities/engine.entity';
-import { Logger, NotFoundException } from '@nestjs/common';
 
 @Injectable()
-export class EngineService {
+export class EngineService implements OnModuleInit {
   private readonly logger = new Logger(EngineService.name);
-  private enginesList: Engine[] = [];
 
-  constructor() {
-    this.logger.log('Ініціалізація списку двигунів (100,000 одиниць)...');
+  constructor(
+    @InjectRepository(Engine)
+    private readonly engineRepository: Repository<Engine>,
+  ) {}
 
-    this.enginesList = Array.from({ length: 100000 }, (_, index) => {
-      const id = index + 1;
-      const newEngine = new Engine();
-
-      newEngine.id = id;
-      newEngine.power = id * 10;
-      newEngine.type = id % 2 === 0 ? 'Electric' : 'Hydraulic';
-      // 2. Використовуємо undefined або cast до any, якщо в entity зв'язок суворий
-      newEngine.prosthesis = undefined as any;
-
-      return newEngine;
-    });
-
-    this.logger.log('Список двигунів успішно створено.');
+  // конструктор
+  async onModuleInit() {
+    const count = await this.engineRepository.count();
+    if (count === 0) {
+      this.logger.log('БД пуста. Ініціалізація 100 одиниць для тесту...');
+      const demoEngines = Array.from({ length: 100 }, (_, index) => {
+        const id = index + 1;
+        return this.engineRepository.create({
+          power: id * 10,
+          type: id % 2 === 0 ? 'Electric' : 'Hydraulic',
+        });
+      });
+      await this.engineRepository.save(demoEngines);
+      this.logger.log('Демо-двигуни успішно додані в Neon.');
+    }
   }
 
-  create(createEngineDto: any) {
-    this.logger.log('Спроба створення нового двигуна...');
-
-    const id = this.enginesList.length + 1;
-    const newEngine: Engine = {
-      id: id,
+  async create(createEngineDto: CreateEngineDto) {
+    this.logger.log('Спроба створення нового двигуна в БД...');
+    const newEngine = this.engineRepository.create({
       power: createEngineDto.power || 100,
       type: createEngineDto.type || 'Electric',
-      prosthesis: undefined as any, // Виправляємо помилку з null
-    };
-
-    this.enginesList.push(newEngine);
-    this.logger.debug(`Двигун #${id} створено успішно`);
-    return newEngine;
+    });
+    const saved = await this.engineRepository.save(newEngine);
+    this.logger.debug(`Двигун #${saved.id} збережено в Neon`);
+    return saved;
   }
 
-  findAll() {
-    return this.enginesList;
+  async findAll() {
+    // relations
+    return await this.engineRepository.find({ relations: ['prosthesis'] });
   }
 
-  findOne(id: number) {
-    const engine = this.enginesList.find((e) => e.id === id);
+  async findOne(id: number) {
+    const engine = await this.engineRepository.findOne({
+      where: { id },
+      relations: ['prosthesis'],
+    });
     if (!engine) {
-      // 3. Тепер NotFoundException буде знайдено завдяки імпорту зверху
-      throw new NotFoundException(`Engine #${id} not found`);
+      throw new NotFoundException(`Engine #${id} not found in database`);
     }
     return engine;
   }
 
-  update(targetId: number, updateEngineDto: UpdateEngineDto) {
-    console.time('ClassicForLoopUpdate');
+  async update(id: number, updateEngineDto: UpdateEngineDto) {
+    console.time('DBUpdate');
 
-    let updatedObject: Engine | null = null;
+    const engine = await this.findOne(id); // перевірка інснування
+    Object.assign(engine, updateEngineDto);
+    const updated = await this.engineRepository.save(engine);
 
-    // Використовуємо класичний цикл for з лічильником
-    for (let i = 0; i < this.enginesList.length; i++) {
-      if (this.enginesList[i].id === targetId) {
-        // Отримуємо посилання на об'єкт за індексом і оновлюємо його
-        Object.assign(this.enginesList[i], updateEngineDto);
-
-        updatedObject = this.enginesList[i];
-
-        // Зупиняємо цикл, як тільки знайшли і оновили
-        break;
-      }
-    }
-
-    console.timeEnd('ClassicForLoopUpdate');
-    return updatedObject;
+    console.timeEnd('DBUpdate');
+    return updated;
   }
 
-  remove(targetId: number) {
-    // 1. Спочатку шукаємо об'єкт в оригінальному масиві
-    const engineToDelete = this.enginesList.find(
-      (engine) => engine.id === targetId,
-    );
-
-    // 2. Якщо об'єкт не знайдено — кидаємо помилку (це краще, ніж повертати рядок)
-    if (!engineToDelete) {
-      // В NestJS прийнято використовувати вбудовані Exception
-      return `Engine with ID = ${targetId} not found`;
-    }
-
-    // 3. Якщо знайшли — видаляємо
-    this.enginesList = this.enginesList.filter(
-      (engine) => engine.id !== targetId,
-    );
-
-    // 4. Повертаємо об'єкт, який видалили (щоб фронтенд знав, що саме зникло)
+  async remove(id: number) {
+    const engineToDelete = await this.findOne(id);
+    await this.engineRepository.remove(engineToDelete);
+    this.logger.warn(`Двигун #${id} видалено з бази`);
     return engineToDelete;
   }
 }

@@ -16,7 +16,7 @@ import { BatteryModule } from './battery/battery.module';
       // Автоматичне завантаження всіх сутностей (entity)
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       // Налаштування для Завдання 2: Міграції
-      synchronize: false, // ВИМКНЕНО для використання міграцій
+      synchronize: true, // ВИМКНЕНО для використання міграцій
       migrations: [__dirname + '/migrations/*{.ts,.js}'],
       migrationsRun: true, // Автозапуск міграцій при старті сервера
       ssl: {
@@ -31,20 +31,5 @@ import { BatteryModule } from './battery/battery.module';
   ],
   controllers: [AppController],
   providers: [AppService],
-})
-
-@Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL, // Берем из Environment Variables CodeSandbox
-      autoLoadEntities: true,
-      synchronize: true, // Чтобы таблицы сами создались в Neon
-      ssl: {
-        rejectUnauthorized: false, // Обязательно для Neon
-      },
-    }),
-    UsersModule,
-  ],
 })
 export class AppModule {}
