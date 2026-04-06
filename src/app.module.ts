@@ -32,4 +32,19 @@ import { BatteryModule } from './battery/battery.module';
   controllers: [AppController],
   providers: [AppService],
 })
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL, // Берем из Environment Variables CodeSandbox
+      autoLoadEntities: true,
+      synchronize: true, // Чтобы таблицы сами создались в Neon
+      ssl: {
+        rejectUnauthorized: false, // Обязательно для Neon
+      },
+    }),
+    UsersModule,
+  ],
+})
 export class AppModule {}

@@ -25,7 +25,7 @@ export class Prosthesis {
 
   // Many-to-One: Багато протезів можуть належати одному користувачу
   @ManyToOne(() => User, (user) => user.prostheses)
-  owner: User;
+  user: User;
 
   // Many-to-Many: Протез може мати багато датчиків, а датчик може бути на різних протезах
   @ManyToMany(() => Sensor, (sensor) => sensor.prostheses)
