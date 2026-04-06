@@ -1,17 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Prosthesis } from '../../prosthesis/entities/prosthesis.entity';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  username: string;
-
-  @Column()
+  @Column({ unique: true })
   email: string;
 
-  @OneToMany(() => Prosthesis, (prosthesis) => prosthesis.owner)
+  @Column()
+  password: string;
+
+  @OneToMany(() => Prosthesis, (prosthesis) => prosthesis.user)
   prostheses: Prosthesis[];
 }

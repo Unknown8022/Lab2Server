@@ -1,66 +1,68 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateSensorDto } from './dto/create-sensor.dto';
 import { UpdateSensorDto } from './dto/update-sensor.dto';
 import { Sensor } from './entities/sensor.entity';
 
 @Injectable()
 export class SensorService {
-  // Створюємо екземпляр логера саме для цього сервісу
   private readonly logger = new Logger(SensorService.name);
-  private sensors: Sensor[] = [];
 
-  create(createSensorDto: CreateSensorDto) {
-    this.logger.log('Спроба створення нового датчика...');
+  constructor(
+    @InjectRepository(Sensor)
+    private readonly sensorRepository: Repository<Sensor>,
+  ) {}
 
-    const newSensor: Sensor = {
-      id: this.sensors.length + 1,
+  async create(createSensorDto: CreateSensorDto) {
+    this.logger.log('Спроба створення нового датчика в БД Neon...');
+
+    const newSensor = this.sensorRepository.create({
       ...createSensorDto,
-      prostheses: [],
-    };
+    });
 
-    this.sensors.push(newSensor);
+    const savedSensor = await this.sensorRepository.save(newSensor);
 
-    this.logger.debug(`Датчик створено успішно: ${JSON.stringify(newSensor)}`);
-    return newSensor;
-  }
-
-  findAll() {
-    this.logger.log(
-      `Запит на отримання всіх датчиків. Знайдено: ${this.sensors.length}`,
+    this.logger.debug(
+      `Датчик створено успішно в БД: ${JSON.stringify(savedSensor)}`,
     );
-    return this.sensors;
+    return savedSensor;
   }
 
-  findOne(id: number) {
-    const sensor = this.sensors.find((sensor) => sensor.id === id);
+  async findAll() {
+    const sensors = await this.sensorRepository.find({
+      relations: ['prostheses'],
+    });
+
+    this.logger.log(
+      `Запит на отримання всіх датчиків з БД. Знайдено: ${sensors.length}`,
+    );
+    return sensors;
+  }
+
+  async findOne(id: number) {
+    const sensor = await this.sensorRepository.findOne({
+      where: { id },
+      relations: ['prostheses'],
+    });
+
     if (!sensor) {
-      this.logger.error(`Помилка: Датчик з ID ${id} не знайдено!`);
+      this.logger.warn(`Датчик з ID ${id} не знайдено`);
       throw new NotFoundException(`Sensor with ID ${id} not found`);
     }
+
     return sensor;
   }
-
-  update(id: number, updateSensorDto: UpdateSensorDto) {
-    this.logger.warn(`Оновлення датчика #${id}...`);
-
-    const sensorIndex = this.sensors.findIndex((sensor) => sensor.id === id);
-
-    if (sensorIndex === -1) {
-      this.logger.error(`Не вдалося оновити: Датчик #${id} відсутній`);
-      throw new NotFoundException(`Sensor #${id} not found`);
-    }
-
-    const updatedSensor = { ...this.sensors[sensorIndex], ...updateSensorDto };
-    this.sensors[sensorIndex] = updatedSensor;
-
-    this.logger.log(`Дані датчика #${id} успішно оновлено`);
-    return updatedSensor;
+  async update(id: number, updateSensorDto: UpdateSensorDto) {
+    const sensor = await this.findOne(id);
+    Object.assign(sensor, updateSensorDto);
+    return await this.sensorRepository.save(sensor);
   }
 
-  remove(id: number) {
-    this.logger.warn(`Видалення датчика #${id} з системи`);
-    const sensor = this.findOne(id);
-    this.sensors = this.sensors.filter((sensor) => sensor.id !== id);
-    return sensor;
+  async remove(id: number) {
+    const sensor = await this.findOne(id);
+    await this.sensorRepository.remove(sensor);
+    this.logger.log(`Датчик з ID ${id} видалено`);
+    return { message: `Sensor #${id} deleted successfully` };
   }
 }

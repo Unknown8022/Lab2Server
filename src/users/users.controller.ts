@@ -7,9 +7,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post() // Регистрация
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('login') // Вход
+  login(@Body() loginData: any) {
+    return this.usersService.login(loginData.email, loginData.password);
   }
 
   @Get()
