@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Req,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ProsthesisService } from './prosthesis.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -13,6 +22,19 @@ export class ProsthesisController {
   async findAll() {
     return await this.service.findAll();
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async findOne(@Param('id') id: string, @Req() req) {
+    const prosthesis = await this.service.findOne(+id);
+
+    if (req.user.role !== 'admin' && prosthesis.user?.id !== req.user.userId) {
+      throw new ForbiddenException('Ви можете бачити тільки свій протез!');
+    }
+
+    return prosthesis;
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id/sensors/:sensorId')
   getSensorData(@Param('id') id: string, @Param('sensorId') sensorId: string) {
