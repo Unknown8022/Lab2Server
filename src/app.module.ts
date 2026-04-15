@@ -7,9 +7,14 @@ import { UsersModule } from './users/users.module';
 import { SensorModule } from './sensor/sensor.module';
 import { EngineModule } from './engine/engine.module';
 import { BatteryModule } from './battery/battery.module';
+import { FilesModule } from './files/files.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
 @Module({
   imports: [
+    PrometheusModule.register({
+      path: '/metrics', // Метрики будуть тут
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: 'postgresql://neondb_owner:npg_o1n6kFxDymrB@ep-misty-cherry-a9uqk2tp-pooler.gwc.azure.neon.tech/neondb?sslmode=require&channel_binding=require', // Замініть на свій рядок підключення
@@ -28,6 +33,7 @@ import { BatteryModule } from './battery/battery.module';
     SensorModule,
     EngineModule,
     BatteryModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
