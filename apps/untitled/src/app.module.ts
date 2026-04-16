@@ -2,12 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProsthesisModule } from './prosthesis/prosthesis.module';
-import { UsersModule } from './users/users.module';
-import { SensorModule } from './sensor/sensor.module';
-import { EngineModule } from './engine/engine.module';
-import { BatteryModule } from './battery/battery.module';
-import { FilesModule } from './files/files.module';
+import { ProsthesisModule } from '../../monitoring-service/src/prosthesis/prosthesis.module';
+import { UsersModule } from '../../auth-service/src/users/users.module';
+import { SensorModule } from '../../monitoring-service/src/battery/sensor/sensor.module';
+import { FilesModule } from '../../storage-service/src/files/files.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
 @Module({
@@ -19,7 +17,10 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
       type: 'postgres',
       url: 'postgresql://neondb_owner:npg_o1n6kFxDymrB@ep-misty-cherry-a9uqk2tp-pooler.gwc.azure.neon.tech/neondb?sslmode=require&channel_binding=require', // Замініть на свій рядок підключення
       // Автоматичне завантаження всіх сутностей (entity)
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [
+        __dirname + '/**/*.entity{.ts,.js}',
+        'dist/libs/common/**/*.entity{.ts,.js}',
+      ],
       // Налаштування для Завдання 2: Міграції
       synchronize: true, // ВИМКНЕНО для використання міграцій
       migrations: [__dirname + '/migrations/*{.ts,.js}'],
@@ -31,8 +32,6 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
     UsersModule,
     ProsthesisModule,
     SensorModule,
-    EngineModule,
-    BatteryModule,
     FilesModule,
   ],
   controllers: [AppController],

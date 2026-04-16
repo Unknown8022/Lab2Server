@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Prosthesis } from '../../prosthesis/entities/prosthesis.entity';
+import { Prosthesis } from './prosthesis.entity';
 
 @Entity() // Це каже TypeORM, що цей клас - таблиця в базі
 export class Sensor {

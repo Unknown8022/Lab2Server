@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity'; 
+import { User } from '@app/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -31,17 +31,19 @@ export class UsersService {
   // Метод для входу
   async login(email: string, pass: string) {
     // Шукаємо користувача по email
-    const user = await this.usersRepository.findOne({ where: { email } as any });
+    const user = await this.usersRepository.findOne({
+      where: { email } as any,
+    });
 
     if (user) {
       // Порівняння пароля та хешу
       const isMatch = await bcrypt.compare(pass, user.password);
 
       if (isMatch) {
-        return { 
-          message: 'Успішний вхід', 
+        return {
+          message: 'Успішний вхід',
           userId: user.id,
-          email: user.email 
+          email: user.email,
         };
       }
     }

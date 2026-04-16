@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProsthesisService } from './prosthesis.service';
 import { ProsthesisController } from './prosthesis.controller';
-import { Prosthesis } from './entities/prosthesis.entity';
-import { Sensor } from '../sensor/entities/sensor.entity';
+import { Prosthesis } from '../../../../libs/common/src/entities/prosthesis.entity';
+import { Sensor } from '../../../../libs/common/src/entities/sensor.entity';
 
 @Module({
   imports: [

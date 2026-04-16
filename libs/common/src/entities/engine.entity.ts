@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
-import { Prosthesis } from '../../prosthesis/entities/prosthesis.entity';
+import { Prosthesis } from './prosthesis.entity';
 
 @Entity()
 export class Engine {

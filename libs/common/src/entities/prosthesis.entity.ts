@@ -8,9 +8,9 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Sensor } from '../../sensor/entities/sensor.entity';
-import { Engine } from '../../engine/entities/engine.entity';
+import { User } from './user.entity';
+import { Sensor } from './sensor.entity';
+import { Engine } from './engine.entity';
 
 @Entity()
 export class Prosthesis {

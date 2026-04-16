@@ -23,6 +23,13 @@
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
     "allowJs": true,
-    "paths": {}
+    "paths": {
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ]
+    }
   }
 }

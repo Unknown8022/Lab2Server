@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSensorDto } from './dto/create-sensor.dto';
 import { UpdateSensorDto } from './dto/update-sensor.dto';
-import { Sensor } from './entities/sensor.entity';
+import { Sensor } from '@app/common';
 
 @Injectable()
 export class SensorService {
