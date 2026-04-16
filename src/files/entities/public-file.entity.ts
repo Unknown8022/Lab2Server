@@ -9,5 +9,5 @@ export class PublicFile {
   public url: string; // Посилання webViewLink
 
   @Column()
-  public googleDriveId: string; // ID файлу в системі Google
+  public key: string; // ID файлу в системі Google
 }
