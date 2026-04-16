@@ -1,62 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { google } from 'googleapis';
 import { Readable } from 'stream';
-import { PublicFile } from './entities/public-file.entity';
-import { Counter } from 'prom-client';
-import {
-  InjectMetric,
-  PrometheusModule,
-  makeCounterProvider,
-} from '@willsoto/nestjs-prometheus';
 
 @Injectable()
 export class FilesService {
   private drive;
 
-  constructor(
-    @InjectRepository(PublicFile)
-    private publicFilesRepository: Repository<PublicFile>,
-    @InjectMetric('google_drive_uploads_total')
-    private readonly uploadCounter: Counter,
-  ) {
-    const auth = new google.auth.GoogleAuth({
-      keyFile: './google-credentials.json', // Файл у корені проекту
-      scopes: ['https://www.googleapis.com/auth/drive.file'],
+  constructor() {
+    // Налаштовуємо клієнт OAuth2 замість сервісного акаунта
+    const oauth2Client = new google.auth.OAuth2(
+      '228034352509-rdaih0ckg1ln8u5716rpcrursd1kb6c1.apps.googleusercontent.com', // Твій Client ID
+      'hidden-for-push', // Твій Client Secret з консолі Google
+      'https://developers.google.com/oauthplayground',
+    );
+    // Додаємо Refresh Token, щоб доступ не зникав через годину
+    oauth2Client.setCredentials({
+      refresh_token: 'hidden-for-push',
     });
-    this.drive = google.drive({ version: 'v3', auth });
+
+    this.drive = google.drive({ version: 'v3', auth: oauth2Client });
   }
 
   async uploadFile(dataBuffer: Buffer, filename: string) {
     try {
-      const fileMetadata = {
-        name: filename,
-        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID], // ID твоєї папки
-      };
-
-      const media = {
-        mimeType: 'application/octet-stream',
-        body: Readable.from(dataBuffer),
-      };
+      // ID папки на ТВОЄМУ диску, куди полетить файл
+      const folderId = '1e3HazomYSC0frVDXVtuyHAJXPVzImdYa';
 
       const response = await this.drive.files.create({
-        requestBody: fileMetadata,
-        media: media,
+        requestBody: {
+          name: filename,
+          parents: [folderId],
+        },
+        media: {
+          mimeType: 'image/png', // Оскільки ти завантажуєш картинку
+          body: Readable.from(dataBuffer),
+        },
         fields: 'id, webViewLink',
       });
 
-      // Збільшуємо метрику успіху
-      this.uploadCounter.inc({ status: 'success' });
-
-      const newFile = this.publicFilesRepository.create({
-        googleDriveId: response.data.id,
-        url: response.data.webViewLink,
-      });
-
-      return await this.publicFilesRepository.save(newFile);
+      console.log('✅ Файл успішно завантажено на твій диск!');
+      return response.data;
     } catch (error) {
-      this.uploadCounter.inc({ status: 'failed' });
+      console.error(
+        '❌ Помилка Google Drive API:',
+        error.response?.data || error.message,
+      );
       throw error;
     }
   }
