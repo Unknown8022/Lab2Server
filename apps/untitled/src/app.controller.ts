@@ -1,12 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Post, Body, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 
-@Controller()
+@Controller('gateway')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @Inject('MONITORING_RMQ') private readonly monitoringClient: ClientProxy,
+  ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Post('collect')
+  async collectData(@Body() payload: any) {
+    // Відправляємо дані в чергу.
+    // Назва події 'new_sensor_data' має збігатися з @EventPattern у мікросервісі
+    this.monitoringClient.emit('new_sensor_data', payload);
+    return { status: 'Sent to RabbitMQ', timestamp: new Date().toISOString() };
   }
 }

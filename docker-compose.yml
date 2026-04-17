@@ -8,3 +8,9 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "8080:80"
+
+      services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
