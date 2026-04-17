@@ -24,12 +24,11 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "paths": {
-      "@app/common": [
-        "libs/common/src"
-      ],
-      "@app/common/*": [
-        "libs/common/src/*"
-      ]
+      "@app/common": ["libs/common/src"],
+      "@app/common/*": ["libs/common/src/*"],
+      "@app/search": ["libs/search/src"],
+      "@app/search/*": ["libs/search/src/*"]
+
     }
   }
 }

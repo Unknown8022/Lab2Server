@@ -5,6 +5,7 @@ import { join } from 'path'; // Імпортуємо join для роботи з
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminGateway } from './admin.gateway';
+import { SearchModule } from '@app/search';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AdminGateway } from './admin.gateway';
         },
       },
     ]),
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService, AdminGateway],
