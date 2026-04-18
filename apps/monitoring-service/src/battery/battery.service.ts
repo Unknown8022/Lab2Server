@@ -1,62 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateBatteryDto } from './dto/create-battery.dto';
 import { UpdateBatteryDto } from './dto/update-battery.dto';
-import { Battery } from './entities/battery.entity';
+import { Battery } from '@app/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProsthesisService } from '../prosthesis/prosthesis.service';
+import { SensorService } from '../sensor/sensor.service';
 
 @Injectable()
 export class BatteryService {
-  private batteryList: Battery[] = [];
-
+  private readonly logger = new Logger(BatteryService.name);
+  constructor(
+    @InjectRepository(Battery)
+    private readonly batteryRepository: Repository<Battery>,
+    private readonly prosthesisService: ProsthesisService,
+    private readonly sensorService: SensorService,
+  ) {}
   create(createBatteryDto: CreateBatteryDto) {
     console.log('--- Battery: Creating New Entry ---');
     console.log('Input data:', createBatteryDto);
 
-    const newBattery: Battery = {
-      id: this.batteryList.length + 1,
+    const newBattery = {
       ...createBatteryDto,
-      temperature: 0,
     };
-
-    this.batteryList.push(newBattery);
-    console.log('Saved Battery:', newBattery);
-    return newBattery;
+    const createdBattery = this.batteryRepository.create(newBattery);
+    this.batteryRepository.save(createdBattery);
+    console.log('Saved Battery:', createdBattery);
+    return createdBattery;
   }
 
-  findAll() {
+  async findAll() {
+    const batteryList = await this.batteryRepository.find();
     console.log(
-      `--- Battery: Fetching all units (Total: ${this.batteryList.length}) ---`,
+      `--- Battery: Fetching all units (Total: ${batteryList.length}) ---`,
     );
-    return this.batteryList;
+    return batteryList;
   }
 
-  findOne(id: number) {
-    console.log(`--- Battery: Searching for ID #${id} ---`);
-    return this.batteryList.find((battery) => battery.id === id);
-  }
-
-  update(id: number, updateBatteryDto: UpdateBatteryDto) {
-    console.log(`--- Battery: Updating ID #${id} ---`);
-    const battery = this.findOne(id);
-
-    if (battery) {
-      Object.assign(battery, updateBatteryDto);
-      console.log('Updated State:', battery);
-    }
+  async findOne(bId: number) {
+    console.log(`--- Battery: Searching for ID #${bId} ---`);
+    const battery = this.batteryRepository.findOne({ where: { id: bId } });
     return battery;
   }
 
-  remove(id: number) {
-    console.log(`--- Battery: Removing ID #${id} ---`);
-    const index = this.batteryList.findIndex((battery) => battery.id === id);
-    if (index !== -1) {
-      const removed = this.batteryList.splice(index, 1);
-      return removed[0];
-    }
-    return null;
+  async update(bId: number, updateBatteryDto: UpdateBatteryDto) {
+    console.time('DBUpdate');
+
+    const battery = await this.findOne(bId); // перевірка інснування
+    Object.assign(battery!, updateBatteryDto);
+    const updated = await this.batteryRepository.save(battery!);
+
+    console.timeEnd('DBUpdate');
+    return updated;
+  }
+
+  async remove(bId: number) {
+    console.log(`--- Battery: Removing ID #${bId} ---`);
+    const batteryToDelete = await this.findOne(bId);
+    await this.batteryRepository.remove(batteryToDelete!);
+    this.logger.warn(`Батарею #${bId} видалено з бази`);
+    return batteryToDelete;
   }
 
   findByVoltage(minVoltage: number) {
-    return this.batteryList.filter((b) => b.voltage >= Number(minVoltage));
+    return this.batteryRepository.find({
+      where: { voltage: Number(minVoltage) },
+    });
   }
 
   findSensorInBattery(batteryId: number, sensorId: number) {
@@ -67,17 +76,45 @@ export class BatteryService {
       status: 'Active',
     };
   }
-  calculateHealth(id: number) {
-    const battery = this.batteryList.find((b) => b.id === Number(id));
-    if (!battery) return { error: 'Battery not found' };
 
-    const healthPercentage = (battery.voltage / 4.2) * 100; //not real formula
+  async calculateHealth(id: string) {
+    const battery = await this.findOne(+id);
+
+    if (!battery) {
+      return { error: 'Battery not found' };
+    }
+
+    const isOverheating = battery.temperature > 45;
+    const chargeLevel = ((battery.voltage - 3.2) / (4.2 - 3.2)) * 100;
+
+    let status = 'Excellent';
+    if (chargeLevel < 20) status = 'Low Battery';
+    if (isOverheating) status = 'CRITICAL: OVERHEAT';
 
     return {
-      id: battery.id,
-      health: `${healthPercentage.toFixed(1)}%`,
-      status: healthPercentage > 80 ? 'Good' : 'Needs Maintenance',
-      timestamp: new Date().toISOString(),
+      batteryId: id,
+      percentage: `${chargeLevel.toFixed(1)}%`,
+      healthStatus: status,
+      canOperate: !isOverheating && chargeLevel > 5,
+      timestamp: new Date(),
+    };
+  }
+  async getProsthesisSensorData(prosthesisId: string, sensorId: string) {
+    const prosthesis = await this.prosthesisService.findOne(+prosthesisId);
+    const sensor = await this.sensorService.findOne(+sensorId);
+    this.logger.warn(prosthesis, sensor);
+    return {
+      status: 'success',
+      prosthesisId: prosthesis.id,
+      prosthesisName: prosthesis.modelName,
+      sensor: {
+        id: sensor.id,
+        type: sensor.type,
+        reading: sensor.value,
+        calibrationDate: new Date().toISOString(),
+      },
+      battery: prosthesis.batteryLevel,
+      timestamp: new Date().getTime(),
     };
   }
 }

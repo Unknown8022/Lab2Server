@@ -28,7 +28,7 @@ export class Prosthesis {
   user: User;
 
   // Many-to-Many: Протез може мати багато датчиків, а датчик може бути на різних протезах
-  @ManyToMany(() => Sensor, (sensor) => sensor.prostheses)
+  @ManyToMany(() => Sensor, (sensor) => sensor.prostheses, { cascade: true })
   @JoinTable()
   sensors: Sensor[];
 

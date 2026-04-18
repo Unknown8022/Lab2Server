@@ -12,4 +12,8 @@ export class CreateBatteryDto {
   @IsNotEmpty()
   @IsBoolean()
   public isCharging: boolean;
+
+  @IsNotEmpty()
+  @IsNumber()
+  public temperature: number;
 }

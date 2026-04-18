@@ -7,15 +7,21 @@ import {
   Body,
   Param,
   UseGuards,
+  HttpCode,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { ProsthesisService } from './prosthesis.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateProsthesisDto } from './dto/create-prosthesis.dto';
+import { CreateProsthesisWithSensorsDto } from './dto/porst-and-senesor.dto';
 
 @Controller('prosthesis')
 export class ProsthesisController {
+  private readonly logger = new Logger(ProsthesisController.name);
   constructor(private readonly service: ProsthesisService) {}
   @Post()
-  async create(@Body() data: any) {
+  async create(@Body() data: CreateProsthesisDto) {
     return await this.service.create(data);
   }
   @Get()
@@ -48,5 +54,14 @@ export class ProsthesisController {
       },
       message: 'Дані отримано через JWT-захист',
     };
+  }
+  @Post('withsensors')
+  @HttpCode(HttpStatus.CREATED)
+  async createWithSensors(
+    @Body() createProsthesisDto: CreateProsthesisWithSensorsDto,
+  ) {
+    console.log('Controller received:', createProsthesisDto);
+    // Викликаємо сервіс для створення протеза
+    return await this.service.createWithSensors(createProsthesisDto);
   }
 }

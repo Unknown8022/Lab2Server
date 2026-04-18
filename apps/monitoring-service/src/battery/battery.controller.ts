@@ -7,13 +7,18 @@ import {
   Param,
   Delete,
   Query,
+  Logger,
 } from '@nestjs/common';
 import { BatteryService } from './battery.service';
 import { CreateBatteryDto } from './dto/create-battery.dto';
 import { UpdateBatteryDto } from './dto/update-battery.dto';
+import { Battery } from '@app/common';
+import { ProsthesisService } from '../prosthesis/prosthesis.service';
+import { SensorService } from '../sensor/sensor.service';
 
 @Controller('battery')
 export class BatteryController {
+  private readonly logger = new Logger(BatteryController.name);
   constructor(private readonly batteryService: BatteryService) {}
 
   @Post()
@@ -45,49 +50,24 @@ export class BatteryController {
     console.log(`DELETE request: /battery/${id}`);
     return this.batteryService.remove(+id);
   }
+
   @Get('search/filter')
   filterByVoltage(@Query('min') min: number) {
     return this.batteryService.findByVoltage(min);
   }
+
   @Get(':id/health-check')
   async getHealth(@Param('id') id: string) {
-    const battery = await this.batteryService.findOne(+id);
-
-    if (!battery) {
-      return { error: 'Battery not found' };
-    }
-
-    const isOverheating = battery.temperature > 45;
-    const chargeLevel = ((battery.voltage - 3.2) / (4.2 - 3.2)) * 100;
-
-    let status = 'Excellent';
-    if (chargeLevel < 20) status = 'Low Battery';
-    if (isOverheating) status = 'CRITICAL: OVERHEAT';
-
-    return {
-      batteryId: id,
-      percentage: `${chargeLevel.toFixed(1)}%`,
-      healthStatus: status,
-      canOperate: !isOverheating && chargeLevel > 5,
-      timestamp: new Date(),
-    };
+    let result = this.batteryService.calculateHealth(id);
+    console.log(`Battery info:${result}`);
+    return result;
   }
+
   @Get(':prosthesisId/sensors/:sensorId')
-async getProsthesisSensorData(
-  @Param('prosthesisId') prosthesisId: string,
-  @Param('sensorId') sensorId: string,
-) {
-  return {
-    status: 'success',
-    prosthesisId: prosthesisId,
-    sensor: {
-      id: sensorId,
-      type: 'EMG_Sensor', 
-      reading: '0.45mV',
-      calibrationDate: new Date().toISOString(),
-    },
-    battery: '85%',
-    timestamp: new Date().getTime(),
-  };
-}
+  async showProsthesisSensorData(
+    @Param('prosthesisId') prosthesisId: string,
+    @Param('sensorId') sensorId: string,
+  ) {
+    return this.batteryService.getProsthesisSensorData(prosthesisId, sensorId);
+  }
 }

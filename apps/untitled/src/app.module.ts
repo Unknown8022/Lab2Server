@@ -6,9 +6,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminGateway } from './admin.gateway';
 import { SearchModule } from '@app/search';
+import { BatteryModule } from 'apps/monitoring-service/src/battery/battery.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppDataSource } from './data-source';
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot({
+      ...AppDataSource.options, // Використовуємо налаштування з вашого об'єкта
+      autoLoadEntities: true, // Дозволяє автоматично підхоплювати ваші Entity
+    }),
     // Налаштовуємо роздачу index.html
     ServeStaticModule.forRoot({
       // Цей шлях динамічно знаходить папку client в архітектурі monorepo
@@ -30,6 +37,7 @@ import { SearchModule } from '@app/search';
       },
     ]),
     SearchModule,
+    BatteryModule,
   ],
   controllers: [AppController],
   providers: [AppService, AdminGateway],

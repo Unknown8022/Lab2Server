@@ -12,6 +12,6 @@ import { Sensor } from '../../../../libs/common/src/entities/sensor.entity';
   ],
   controllers: [ProsthesisController],
   providers: [ProsthesisService],
-  exports: [TypeOrmModule],
+  exports: [ProsthesisService],
 })
 export class ProsthesisModule {}

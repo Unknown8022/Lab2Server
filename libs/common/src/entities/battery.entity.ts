@@ -1,7 +1,17 @@
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
 export class Battery {
-  public id: number;
-  public percentage: number;
-  public voltage: number;
-  public isCharging: boolean;
-  public temperature: number;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  percentage: number;
+
+  @Column()
+  voltage: number;
+  @Column()
+  isCharging: boolean;
+  @Column()
+  temperature: number;
 }
