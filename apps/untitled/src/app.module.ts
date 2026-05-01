@@ -10,7 +10,8 @@ import { BatteryModule } from 'apps/monitoring-service/src/battery/battery.modul
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './data-source';
 import { EngineModule } from 'apps/monitoring-service/src/engine/engine.module';
-
+import { SensorModule } from 'apps/monitoring-service/src/sensor/sensor.module';
+import { ProsthesisModule } from 'apps/monitoring-service/src/prosthesis/prosthesis.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -39,7 +40,9 @@ import { EngineModule } from 'apps/monitoring-service/src/engine/engine.module';
     ]),
     SearchModule,
     BatteryModule,
-    EngineModule
+    EngineModule,
+    ProsthesisModule,
+    SensorModule
   ],
   controllers: [AppController],
   providers: [AppService, AdminGateway],
