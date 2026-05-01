@@ -27,18 +27,18 @@ export class EngineController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.engineService.findOne(+id);
+    return this.engineService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEngineDto: UpdateEngineDto) {
     console.log(`test`);
     console.log(updateEngineDto);
-    return this.engineService.update(+id, updateEngineDto);
+    return this.engineService.update(id, updateEngineDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.engineService.remove(+id);
+    return this.engineService.remove(id);
   }
 }

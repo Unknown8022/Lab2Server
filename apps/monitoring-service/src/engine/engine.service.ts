@@ -11,7 +11,7 @@ import { CreateEngineDto } from './dto/create-engine.dto';
 import { UpdateEngineDto } from './dto/update-engine.dto';
 
 @Injectable()
-export class EngineService implements OnModuleInit {
+export class EngineService  {
   private readonly logger = new Logger(EngineService.name);
 
   constructor(
@@ -20,28 +20,28 @@ export class EngineService implements OnModuleInit {
   ) {}
 
   // конструктор
-  async onModuleInit() {
-    const count = await this.engineRepository.count();
-    if (count === 0) {
-      this.logger.log('БД пуста. Ініціалізація 100 одиниць для тесту...');
-      const demoEngines = Array.from({ length: 100 }, (_, index) => {
-        const id = index + 1;
-        return this.engineRepository.create({
-          power: id * 10,
-          type: id % 2 === 0 ? 'Electric' : 'Hydraulic',
-        });
-      });
-      await this.engineRepository.save(demoEngines);
-      this.logger.log('Демо-двигуни успішно додані в Neon.');
-    }
-  }
+  // async onModuleInit() {
+  //   const count = await this.engineRepository.count();
+  //   if (count === 0) {
+  //     this.logger.log('БД пуста. Ініціалізація 100 одиниць для тесту...');
+  //     const demoEngines = Array.from({ length: 100 }, (_, index) => {
+  //       const id = index + 1;
+  //       return this.engineRepository.create({
+  //         power: id * 10,
+  //         type: id % 2 === 0 ? 'Electric' : 'Hydraulic',
+  //       });
+  //     });
+  //     await this.engineRepository.save(demoEngines);
+  //     this.logger.log('Демо-двигуни успішно додані в Neon.');
+  //   }
+  // }
 
   async create(createEngineDto: CreateEngineDto) {
     this.logger.log('Спроба створення нового двигуна в БД...');
-    const newEngine = this.engineRepository.create({
-      power: createEngineDto.power || 100,
-      type: createEngineDto.type || 'Electric',
-    });
+    
+    // Використовуйте розгортання об'єкта (...), щоб прийняти ВСІ поля з DTO
+    const newEngine = this.engineRepository.create(createEngineDto);
+  
     const saved = await this.engineRepository.save(newEngine);
     this.logger.debug(`Двигун #${saved.id} збережено в Neon`);
     return saved;
@@ -52,7 +52,7 @@ export class EngineService implements OnModuleInit {
     return await this.engineRepository.find({ relations: ['prosthesis'] });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const engine = await this.engineRepository.findOne({
       where: { id },
       relations: ['prosthesis'],
@@ -63,7 +63,7 @@ export class EngineService implements OnModuleInit {
     return engine;
   }
 
-  async update(id: number, updateEngineDto: UpdateEngineDto) {
+  async update(id: string, updateEngineDto: UpdateEngineDto) {
     console.time('DBUpdate');
 
     const engine = await this.findOne(id); // перевірка інснування
@@ -74,7 +74,7 @@ export class EngineService implements OnModuleInit {
     return updated;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const engineToDelete = await this.findOne(id);
     await this.engineRepository.remove(engineToDelete);
     this.logger.warn(`Двигун #${id} видалено з бази`);

@@ -19,16 +19,16 @@ export class SensorController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.sensorService.findOne(+id);
+    return this.sensorService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSensorDto: UpdateSensorDto) {
-    return this.sensorService.update(+id, updateSensorDto);
+    return this.sensorService.update(id, updateSensorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.sensorService.remove(+id);
+    return this.sensorService.remove(id);
   }
 }

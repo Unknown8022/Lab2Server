@@ -3,8 +3,8 @@ import { Prosthesis } from './prosthesis.entity';
 
 @Entity() // Це каже TypeORM, що цей клас - таблиця в базі
 export class Sensor {
-  @PrimaryGeneratedColumn() // Автоматичний ID (1, 2, 3...)
-  id: number;
+  @PrimaryGeneratedColumn('uuid') // Автоматичний ID (1, 2, 3...)
+  id: string;
 
   @Column()
   type: string;

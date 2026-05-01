@@ -18,7 +18,7 @@ export class ProsthesisService {
     return await this.repo.save(prosthesis);
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const item = await this.repo.findOne({
       where: { id },
       relations: ['user'], // Чтобы мы могли проверить владельца
@@ -32,24 +32,25 @@ export class ProsthesisService {
   }
   async createWithSensors(dto: CreateProsthesisWithSensorsDto) {
     // 1. Знаходимо сенсори за ID
-    const sensors = await this.sRepo.findBy({ id: In(dto.sensorIds) });
-    this.logger.debug('DTO Values:', {
-      userId: dto.userId,
-      engineId: dto.engineId,
-      sensors: sensors,
+    const sensors = await this.sRepo.findBy({ 
+      id: In(dto.sensorIds) 
     });
+
     // 2. Створюємо об'єкт протеза
+    // Використовуємо кастинг 'as any' або чітко вказуємо об'єкти, 
+    // бо TypeORM іноді суворо перевіряє зв'язки при створенні через .create()
     const prosthesis = this.repo.create({
       modelName: dto.modelName,
       batteryLevel: dto.batteryLevel,
-      //user: { id: dto.userId },
-      //engine: { id: dto.engineId },
-      sensors: sensors, // Прив'язуємо знайдені сенсори
+      user: dto.userId ? ({ id: dto.userId } as any) : null,
+      engine: dto.engineId ? ({ id: dto.engineId } as any) : null,
+      sensors: sensors,
     });
-    this.logger.debug(prosthesis);
+
+    this.logger.debug('Mapped Prosthesis object:', prosthesis);
 
     const saved = await this.repo.save(prosthesis);
-    this.logger.warn(`saved${saved}`);
+    this.logger.warn(`Successfully saved prosthesis with ID: ${saved.id}`);
     return saved;
   }
 }

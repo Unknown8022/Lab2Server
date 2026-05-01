@@ -9,6 +9,7 @@ import { SearchModule } from '@app/search';
 import { BatteryModule } from 'apps/monitoring-service/src/battery/battery.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './data-source';
+import { EngineModule } from 'apps/monitoring-service/src/engine/engine.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AppDataSource } from './data-source';
     ]),
     SearchModule,
     BatteryModule,
+    EngineModule
   ],
   controllers: [AppController],
   providers: [AppService, AdminGateway],

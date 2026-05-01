@@ -32,7 +32,7 @@ export class ProsthesisController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req) {
-    const prosthesis = await this.service.findOne(+id);
+    const prosthesis = await this.service.findOne(id);
 
     if (req.user.role !== 'admin' && prosthesis.user?.id !== req.user.userId) {
       throw new ForbiddenException('Ви можете бачити тільки свій протез!');

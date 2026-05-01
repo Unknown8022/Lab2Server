@@ -37,13 +37,14 @@ export class BatteryService {
     return batteryList;
   }
 
-  async findOne(bId: number) {
+  async findOne(bId: string) {
     console.log(`--- Battery: Searching for ID #${bId} ---`);
-    const battery = this.batteryRepository.findOne({ where: { id: bId } });
-    return battery;
+    return await this.batteryRepository.findOne({
+      where: { id: bId } // Тепер id має бути string (UUID)
+    });
   }
 
-  async update(bId: number, updateBatteryDto: UpdateBatteryDto) {
+  async update(bId: string, updateBatteryDto: UpdateBatteryDto) {
     console.time('DBUpdate');
 
     const battery = await this.findOne(bId); // перевірка інснування
@@ -54,7 +55,7 @@ export class BatteryService {
     return updated;
   }
 
-  async remove(bId: number) {
+  async remove(bId: string) {
     console.log(`--- Battery: Removing ID #${bId} ---`);
     const batteryToDelete = await this.findOne(bId);
     await this.batteryRepository.remove(batteryToDelete!);
@@ -68,9 +69,9 @@ export class BatteryService {
     });
   }
 
-  findSensorInBattery(batteryId: number, sensorId: number) {
+  findSensorInBattery(batteryId: string, sensorId: string) {
     return {
-      parentBattery: Number(batteryId),
+      parentBattery: String(batteryId),
       sensorDetail: `Дані для сенсора ${sensorId}`,
       value: (Math.random() * 5).toFixed(2),
       status: 'Active',
@@ -78,7 +79,7 @@ export class BatteryService {
   }
 
   async calculateHealth(id: string) {
-    const battery = await this.findOne(+id);
+    const battery = await this.findOne(id);
 
     if (!battery) {
       return { error: 'Battery not found' };
@@ -100,8 +101,8 @@ export class BatteryService {
     };
   }
   async getProsthesisSensorData(prosthesisId: string, sensorId: string) {
-    const prosthesis = await this.prosthesisService.findOne(+prosthesisId);
-    const sensor = await this.sensorService.findOne(+sensorId);
+    const prosthesis = await this.prosthesisService.findOne(prosthesisId);
+    const sensor = await this.sensorService.findOne(sensorId);
     this.logger.warn(prosthesis, sensor);
     return {
       status: 'success',

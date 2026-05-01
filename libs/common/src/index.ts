@@ -6,3 +6,5 @@ export * from './entities/prosthesis.entity';
 export * from './entities/sensor.entity';
 export * from './entities/battery.entity';
 export * from './entities/engine.entity';
+export * from './decorators/roles.decorator';
+export * from './guards/roles.guard';

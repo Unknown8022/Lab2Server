@@ -14,8 +14,8 @@ import { Engine } from './engine.entity';
 
 @Entity()
 export class Prosthesis {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   modelName: string;

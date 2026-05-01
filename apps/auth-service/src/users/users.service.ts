@@ -10,14 +10,13 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
   ) {}
 
-  // Основний метод створення юзера
+  // Створення юзера
   async create(createUserDto: CreateUserDto) {
     const { password, ...userData } = createUserDto;
 
-    // Хешуємо пароль
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = this.usersRepository.create({
@@ -28,15 +27,15 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  // Метод для входу
+  // Логін
   async login(email: string, pass: string) {
-    // Шукаємо користувача по email
+    // findOne тепер розуміє тип email автоматично
     const user = await this.usersRepository.findOne({
-      where: { email } as any,
+      where: { email },
+      select: ['id', 'email', 'password'] // ЯВНО додаємо пароль для перевірки
     });
 
     if (user) {
-      // Порівняння пароля та хешу
       const isMatch = await bcrypt.compare(pass, user.password);
 
       if (isMatch) {
@@ -48,25 +47,29 @@ export class UsersService {
       }
     }
 
-    // Якщо щось пішло не так
     throw new UnauthorizedException('Неправильний логін чи пароль');
   }
 
-  //CRUD
+  // Отримання всіх
   async findAll() {
     return await this.usersRepository.find();
   }
 
-  async findOne(id: number) {
-    return await this.usersRepository.findOne({ where: { id } as any });
+  // Отримання одного (UUID завжди string)
+  async findOne(id: string) {
+    return await this.usersRepository.findOne({ 
+      where: { id } 
+    });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  // Оновлення
+  async update(id: string, updateUserDto: UpdateUserDto) {
     await this.usersRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
 
-  async remove(id: number) {
+  // Видалення
+  async remove(id: string) {
     await this.usersRepository.delete(id);
     return { deleted: true };
   }

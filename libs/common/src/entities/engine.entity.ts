@@ -3,10 +3,22 @@ import { Prosthesis } from './prosthesis.entity';
 
 @Entity()
 export class Engine {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
+  name: string; 
+
+  @Column({ type: 'float' })
+  rotationPerSecondSpeed: number; 
+
+  @Column({ type: 'float', nullable: true })
+  voltage: number; 
+
+  @Column({ type: 'float', nullable: true })
+  electricCurrent: number; 
+
+  @Column({ type: 'float' })
   power: number;
 
   @Column()

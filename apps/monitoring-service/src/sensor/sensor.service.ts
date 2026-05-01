@@ -40,7 +40,7 @@ export class SensorService {
     return sensors;
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const sensor = await this.sensorRepository.findOne({
       where: { id },
       relations: ['prostheses'],
@@ -53,13 +53,13 @@ export class SensorService {
 
     return sensor;
   }
-  async update(id: number, updateSensorDto: UpdateSensorDto) {
+  async update(id: string, updateSensorDto: UpdateSensorDto) {
     const sensor = await this.findOne(id);
     Object.assign(sensor, updateSensorDto);
     return await this.sensorRepository.save(sensor);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const sensor = await this.findOne(id);
     await this.sensorRepository.remove(sensor);
     this.logger.log(`Датчик з ID ${id} видалено`);

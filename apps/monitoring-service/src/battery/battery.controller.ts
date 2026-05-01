@@ -36,19 +36,19 @@ export class BatteryController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     console.log(`GET request: /battery/${id}`);
-    return this.batteryService.findOne(+id);
+    return this.batteryService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBatteryDto: UpdateBatteryDto) {
     console.log(`PATCH request: /battery/${id}`);
-    return this.batteryService.update(+id, updateBatteryDto);
+    return this.batteryService.update(id, updateBatteryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     console.log(`DELETE request: /battery/${id}`);
-    return this.batteryService.remove(+id);
+    return this.batteryService.remove(id);
   }
 
   @Get('search/filter')
