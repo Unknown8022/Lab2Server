@@ -1,13 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { User } from '@app/common'; 
 
-@Entity()
+@Entity('webhooks')
 export class Webhook {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  targetUrl: string; // URL-адреса, куди будуть надсилатися дані (наприклад, Discord)
+  targetUrl: string;
 
   @Column({ default: 'SENSOR_ALERT' })
-  eventType: string; // Тип події, на яку реагує вебхук
+  eventType: string;
+
+  @ManyToOne(() => User, (user) => user.webhooks, { nullable: true })
+  user: User;
 }

@@ -45,6 +45,7 @@
     "@willsoto/nestjs-prometheus": "^6.1.0",
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^1.0.3",
+    "axios": "^1.16.0",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
     "class-transformer": "^0.5.1",
