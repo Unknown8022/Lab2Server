@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@app/common';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -60,6 +61,10 @@ export class UsersService {
     return await this.usersRepository.findOne({ 
       where: { id } 
     });
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
   // Оновлення

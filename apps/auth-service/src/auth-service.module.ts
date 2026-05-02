@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthServiceController } from './auth-service.controller';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthServiceService } from './auth-service.service';
-import { UsersModule } from './users/users.module'; // Імпорт твого модуля
-import { AppDataSource } from '../../untitled/src/data-source'; // Наш конфіг БД
+import { AuthServiceController } from './auth-service.controller';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    // 1. Підключаємо базу даних через опції нашого DataSource
-    TypeOrmModule.forRoot(AppDataSource.options), 
-    // 2. Підключаємо модуль користувачів, де лежить UsersController
-    UsersModule, 
+    UsersModule,
+    JwtModule.register({
+      secret: 'MY_SECRET_KEY', // Ключ для підпису токена
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
   controllers: [AuthServiceController],
   providers: [AuthServiceService],
