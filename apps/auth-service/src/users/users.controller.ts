@@ -12,14 +12,10 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole, Roles, RolesGuard } from '@app/common';
-import { AuthService } from 'apps/monitoring-service/src/auth/auth.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   // Створення доступне всім (реєстрація)
   @Post()
@@ -48,11 +44,6 @@ export class UsersController {
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
-@Post('login')
-async login(@Body() loginDto: any) {
-  // Передаємо один об'єкт, а не два аргументи
-  return this.authService.login(loginDto); 
-}
 
   // Тільки адмін може видаляти
   @Delete(':id')
