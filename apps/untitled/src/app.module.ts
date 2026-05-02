@@ -12,6 +12,8 @@ import { AppDataSource } from './data-source';
 import { EngineModule } from 'apps/monitoring-service/src/engine/engine.module';
 import { SensorModule } from 'apps/monitoring-service/src/sensor/sensor.module';
 import { ProsthesisModule } from 'apps/monitoring-service/src/prosthesis/prosthesis.module';
+import { User } from '@app/common';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -22,6 +24,7 @@ import { ProsthesisModule } from 'apps/monitoring-service/src/prosthesis/prosthe
     ServeStaticModule.forRoot({
       // Цей шлях динамічно знаходить папку client в архітектурі monorepo
       rootPath: join(__dirname, '..', '..', '..', 'apps', 'untitled', 'client'),
+      renderPath: '/',
       exclude: ['/api*'],
     }),
     // Налаштування RabbitMQ клієнта
@@ -42,7 +45,7 @@ import { ProsthesisModule } from 'apps/monitoring-service/src/prosthesis/prosthe
     BatteryModule,
     EngineModule,
     ProsthesisModule,
-    SensorModule
+    SensorModule,
   ],
   controllers: [AppController],
   providers: [AppService, AdminGateway],
