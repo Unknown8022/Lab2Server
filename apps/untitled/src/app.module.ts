@@ -13,6 +13,7 @@ import { EngineModule } from 'apps/monitoring-service/src/engine/engine.module';
 import { SensorModule } from 'apps/monitoring-service/src/sensor/sensor.module';
 import { ProsthesisModule } from 'apps/monitoring-service/src/prosthesis/prosthesis.module';
 import { User } from '@app/common';
+import { FilesModule } from 'apps/storage-service/src/files/files.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { User } from '@app/common';
     EngineModule,
     ProsthesisModule,
     SensorModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService, AdminGateway],

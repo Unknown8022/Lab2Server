@@ -15,7 +15,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column() // Пароль не буде виводитись у запитах
+  @Column()
   password: string;
 
   @Column({

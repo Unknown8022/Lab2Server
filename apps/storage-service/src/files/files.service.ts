@@ -10,12 +10,12 @@ export class FilesService {
     // Налаштовуємо клієнт OAuth2 замість сервісного акаунта
     const oauth2Client = new google.auth.OAuth2(
       '228034352509-rdaih0ckg1ln8u5716rpcrursd1kb6c1.apps.googleusercontent.com', // Твій Client ID
-      'hidden-for-push', // Твій Client Secret з консолі Google
+      'hidden', // Твій Client Secret з консолі Google
       'https://developers.google.com/oauthplayground',
     );
     // Додаємо Refresh Token, щоб доступ не зникав через годину
     oauth2Client.setCredentials({
-      refresh_token: 'hidden-for-push',
+      refresh_token: 'hidden',
     });
 
     this.drive = google.drive({ version: 'v3', auth: oauth2Client });
